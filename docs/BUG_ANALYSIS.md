@@ -39,3 +39,9 @@ The public function returns `bignum_bit_length_status_t`, whose C ABI representa
 `BIGNUM_CAPACITY` is 32 and the shared core definition is exactly `uint64_t words[32]; size_t len;`. The length field is therefore at byte offset `32 * 8 = 256`. The valid logical length range is `0..32`, inclusive: `len == 32` refers to the last valid word at index 31. The existing unsigned `ja` check is correct; changing it to `jae` would incorrectly reject the maximum-capacity value.
 
 The new implementation and tests preserve these conclusions explicitly.
+
+## Final polish verification
+
+A C11 `_Static_assert` now verifies that `offsetof(bignum_t, len)` equals `BIGNUM_CAPACITY * sizeof(uint64_t)`, which is 256 bytes for the current 32-word layout. This turns a previously manual cross-language assumption into a compile-time failure if the core structure changes. The assembly retains `ja` rather than `jae`, because the documented and tested logical length range is inclusive and `len == BIGNUM_CAPACITY` accesses the final valid word.
+
+The complete ASM and C11 suites, sanitizers, Helgrind, lint and Doxygen checks pass after this guard was added.

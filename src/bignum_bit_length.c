@@ -3,8 +3,11 @@
  * @brief C11 reference implementation for significant-bit counting.
  */
 #include "bignum_bit_length.h"
-
+#include <stddef.h>
 #include <stdint.h>
+
+_Static_assert(offsetof(bignum_t, len) == BIGNUM_CAPACITY * sizeof(uint64_t),
+               "bignum_bit_length ASM length offset must match bignum_t layout");
 
 /**
  * @brief Validates a bignum logical length.
