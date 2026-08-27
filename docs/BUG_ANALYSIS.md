@@ -31,3 +31,11 @@ The test suite nevertheless lacked a test named specifically for the multi-word 
 ## Result
 
 The defect was a real maintainability and reviewability problem, not an observed arithmetic failure in the prior binary. The assembly now uses the direct formula, and both ASM and C11 implementations pass the focused regression, exhaustive deterministic tests and randomized oracle tests.
+
+## Additional review findings
+
+The public function returns `bignum_bit_length_status_t`, whose C ABI representation is an `int`-compatible enumeration. Consequently, `mov eax, -1` was already sufficient for ordinary C callers because the caller consumes the 32-bit return value. Nevertheless, the implementation now uses `mov rax, -1` and `mov rax, -2`, which provides an explicitly sign-extended 64-bit register result and is safer for low-level wrappers that inspect the complete register.
+
+`BIGNUM_CAPACITY` is 32 and the shared core definition is exactly `uint64_t words[32]; size_t len;`. The length field is therefore at byte offset `32 * 8 = 256`. The valid logical length range is `0..32`, inclusive: `len == 32` refers to the last valid word at index 31. The existing unsigned `ja` check is correct; changing it to `jae` would incorrectly reject the maximum-capacity value.
+
+The new implementation and tests preserve these conclusions explicitly.

@@ -45,14 +45,14 @@ bignum_bit_length:
 
 .publish:
     mov     [rsi], rax
-    xor     eax, eax
+    xor     rax, rax
     ret
 
 .error_null:
-    mov     eax, ERROR_NULL
+    mov     rax, ERROR_NULL
     ret
 .error_length:
-    mov     eax, ERROR_LENGTH
+    mov     rax, ERROR_LENGTH
     ret
 
 section .note.GNU-stack noalloc noexec nowrite progbits
