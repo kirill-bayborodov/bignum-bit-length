@@ -1,29 +1,29 @@
-# How-to: `bignum_template_standard.json`
+# How-to: `bignum_bit_length_standard.json`
 
 ## Назначение
 
-`bignum_template_standard.json` — компактная versioned matrix для функциональной проверки и регрессионного baseline операции `bignum_template`. Manifest использует schema version `1`, которую читает C11-инструмент `bench_matrix` из pinned `benchmark-framework v1.0.0`.
+`bignum_bit_length_standard.json` — компактная versioned matrix для функциональной проверки и регрессионного baseline операции `bignum_bit_length`. Manifest использует schema version `1`, которую читает C11-инструмент `bench_matrix` из pinned `benchmark-framework v1.0.0`.
 
 > Manifest не описывает generic byte-transform. Он переносит bignum semantics через нейтральные transport fields benchmark framework.
 
 | JSON field | Значение в manifest | Bignum interpretation |
 |---|---|---|
 | `input_kind` | `zero`, `nonzero`, `mixed` | Форма исходного `bignum_t` dataset |
-| `operation_kind` | `shift-zero`, `shift-bit`, `shift-word`, `shift-combined`, `shift-random`, `shift-mixed` | Выбор representable left-shift amount |
+| `operation_kind` | `bit-zero`, `bit-length`, `bit-word`, `bit-random`, `bit-mixed` | Выбор representable left-bit-length amount; legacy `noop`, `default`, `mixed` также принимаются для `--data-mode` |
 | `measure_mode` | `end-to-end`, `kernel-only` | Включает либо исключает preparation copy из timed interval |
 | `size_profile` | `one`, `quarter`, `half`, `variable`, `near-capacity` | Logical word length of input `bignum_t` |
 | `capacity_profile` | `normal`, `near-capacity` | Storage-boundary workload condition |
 
 ## Пошаговый smoke run
 
-После `make build CONFIG=release` adapter binaries передаются C11 runner напрямую. Команда воспроизводимого smoke-прогона имеет следующую форму:
+После approved Makefile wiring adapter binaries будут передаваться C11 runner напрямую. Эквивалентная команда имеет следующую форму:
 
 ```bash
-libs/benchmark-framework/dist/tools/bench_matrix \
-  --manifest benchmarks/profiles/bignum_template_standard.json \
-  --output benchmarks/reports/bignum_template_standard_matrix.json \
-  --st-binary bin/bench_bignum_template \
-  --mt-binary bin/bench_bignum_template_mt \
+libs/benchmark-framework/build/tools/bench_matrix \
+  --manifest benchmarks/profiles/bignum_bit_length_standard.json \
+  --output benchmarks/reports/bignum_bit_length_standard_matrix.json \
+  --st-binary bin/bench_bignum_bit_length \
+  --mt-binary bin/bench_bignum_bit_length_mt \
   --repetitions 1 \
   --iterations 1001 \
   --mt-total-iterations 2000 \
@@ -41,15 +41,15 @@ The expected matrix contains **8 profiles × 2 modes × repetitions** samples. E
 Aggregate a candidate without a baseline first:
 
 ```bash
-libs/benchmark-framework/dist/tools/benchmark_stats \
-  --input benchmarks/reports/bignum_template_standard_matrix.json \
-  --output benchmarks/reports/bignum_template_standard_summary.json
+libs/benchmark-framework/build/tools/benchmark_stats \
+  --input benchmarks/reports/bignum_bit_length_standard_matrix.json \
+  --output benchmarks/reports/bignum_bit_length_standard_summary.json
 ```
 
 After human review, compare a later candidate to the approved matrix using identical manifests and measurement conditions:
 
 ```bash
-libs/benchmark-framework/dist/tools/benchmark_stats \
+libs/benchmark-framework/build/tools/benchmark_stats \
   --input benchmarks/reports/candidate_matrix.json \
   --baseline benchmarks/reports/reviewed_baseline_matrix.json \
   --output benchmarks/reports/candidate_summary.json \
