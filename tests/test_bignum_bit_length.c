@@ -38,6 +38,12 @@ int main(void)
     }
 
     memset(&value, 0, sizeof(value));
+    value.len = 4U;
+    value.words[3] = UINT64_C(1) << 5U;
+    result = 0U;
+    check("multi-word found arithmetic", bignum_bit_length(&value, &result) == BIGNUM_BIT_LENGTH_SUCCESS && result == 3U * 64U + 6U);
+
+    memset(&value, 0, sizeof(value));
     value.len = BIGNUM_CAPACITY;
     value.words[BIGNUM_CAPACITY - 1U] = UINT64_MAX;
     result = 0U;

@@ -37,8 +37,9 @@ bignum_bit_length:
 
 .found:
     bsr     rdx, rdx
-    lea     rax, [rcx*8 - 8]
-    shl     rax, 3
+    mov     rax, rcx
+    dec     rax
+    shl     rax, 6
     add     rax, rdx
     inc     rax
 
